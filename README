@@ -1,0 +1,15 @@
+Planteamiento del problema:
+
+El restaurante Sabor & Sazón necesita una aplicación que permita registrar los datos básicos de sus clientes y calcular el costo total del servicio según el tipo de menú seleccionado y la cantidad de sesiones gastronómicas tomadas. La aplicación tendrá una interfaz gráfica para registrar, guardar, calcular y mostrar la información del cliente y el valor total a pagar.
+
+Requerimientos funcionales:
+-	Iniciar sesión: El sistema debe solicitar una contraseña de acceso (1793) antes de ingresar al formulario principal.
+-	Registrar cliente: El sistema debe permitir ingresar identificación, nombre completo, género, tipo de menú y número de sesiones.
+-	Generar fecha: El sistema debe mostrar automáticamente la fecha en la que se realiza el registro.
+-	Seleccionar menú: El sistema debe permitir seleccionar el tipo de menú mediante una lista desplegable.
+-	Mostrar costo por sesión: Al seleccionar el menú, el sistema debe mostrar automáticamente el precio correspondiente.
+-	Guardar registro: El sistema debe permitir guardar la información del cliente mediante el botón “Guardar Registro”.
+-	Calcular costo total: El sistema debe calcular el costo total multiplicando el número de sesiones por el costo de cada sesión.
+-	Mostrar reporte: El sistema debe presentar un reporte con los datos del cliente y el costo total del servicio.
+-	Salir de la aplicación: El sistema debe permitir cerrar la aplicación solicitando confirmación al usuario.
+
