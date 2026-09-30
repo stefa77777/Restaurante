@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestión de Clientes - Restaurante Sabor & Sazón</title>
+  <style>
+    :root {
+      --bg-color: #E0F2FE;
+      --container-bg: #BAE6FD;
+      --primary-color: #0284C7;
+      --btn-registrar: #0284C7;
+      --btn-salir: #DC2626;
+      --btn-vaciar: #E11D48;
+      --text-color: #000000;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 850px;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    h1, h2 {
+      text-align: center;
+      color: var(--primary-color);
+      margin-bottom: 5px;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-style: italic;
+      color: #4B5563;
+      margin-bottom: 20px;
+    }
+
+    fieldset {
+      border: 2px solid var(--container-bg);
+      border-radius: 6px;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+
+    legend {
+      font-weight: bold;
+      color: var(--primary-color);
+      padding: 0 5px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      font-size: 0.9rem;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    input, select {
+      padding: 8px;
+      border: 1px solid #CBD5E1;
+      border-radius: 4px;
+      font-size: 0.95rem;
+    }
+
+    input[readonly] {
+      background-color: #F1F5F9;
+    }
+
+    .btn-group {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin: 15px 0;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 0.95rem;
+      font-weight: bold;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .btn-submit { background-color: var(--btn-registrar); }
+    .btn-clear { background-color: var(--btn-vaciar); }
+    .btn-exit { background-color: var(--btn-salir); }
+
+    button:hover { opacity: 0.9; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th, td {
+      border: 1px solid #CBD5E1;
+      padding: 8px;
+      text-align: center;
+      font-size: 0.85rem;
+    }
+
+    th {
+      background-color: var(--container-bg);
+    }
+
+    /* Modal / Popup */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 25px;
+      border-radius: 8px;
+      width: 400px;
+      text-align: center;
+    }
+
+    .modal-content table {
+      margin-bottom: 15px;
+    }
+
+    .modal-content td {
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Modal de Login -->
+  <div id="loginModal" class="modal" style="display: flex;">
+    <div class="modal-content">
+      <h2>SISTEMA DE GESTIÓN DE CLIENTES</h2>
+      <p class="subtitle">Desarrollado por: Andrea Redondo</p>
+      <fieldset>
+        <legend> Autenticación de Seguridad </legend>
+        <div class="form-group" style="margin-top: 10px;">
+          <label for="loginPass">Ingrese la Contraseña:</label>
+          <input type="password" id="loginPass" placeholder="****">
+        </div>
+        <button class="btn-submit" style="margin-top: 15px;" onclick="validarLogin()">Ingresar al Sistema</button>
+      </fieldset>
+    </div>
+  </div>
+
+  <!-- Contenido Principal -->
+  <div class="container" id="mainApp" style="display: none;">
+    <h1>Registro de Clientes y Cálculo de Costo</h1>
+    <p class="subtitle">Restaurante Sabor & Sazón</p>
+
+    <!-- Formulario de Registro -->
+    <fieldset>
+      <legend> Datos del Cliente </legend>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Identificación (Números):</label>
+          <input type="text" id="identificacion">
+        </div>
+        <div class="form-group">
+          <label>Nombre Completo (Letras):</label>
+          <input type="text" id="nombre">
+        </div>
+        <div class="form-group">
+          <label>Género:</label>
+          <select id="genero">
+            <option value="Femenino">Femenino</option>
+            <option value="Masculino">Masculino</option>
+            <option value="Otro">Otro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Tipo de Menú:</label>
+          <select id="menu" onchange="actualizarCosto()">
+            <option value="Ejecutivo">Ejecutivo</option>
+            <option value="Vegetariano">Vegetariano</option>
+            <option value="Degustación">Degustación</option>
+            <option value="Infantil">Infantil</option>
+            <option value="Gourmet">Gourmet</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Número de Sesiones (>0):</label>
+          <input type="number" id="sesiones" min="1">
+        </div>
+        <div class="form-group">
+          <label>Costo por Sesión ($):</label>
+          <input type="text" id="costo" readonly>
+        </div>
+      </div>
+    </fieldset>
+
+    <!-- Botones de Acción -->
+    <div class="btn-group">
+      <button class="btn-submit" onclick="procesarRegistro()">Calcular Costo Total y Registrar</button>
+      <button class="btn-exit" onclick="confirmarSalida()">Salir</button>
+    </div>
+
+    <!-- Tabla de Registros -->
+    <fieldset>
+      <legend> Clientes Registrados </legend>
+      <table id="tablaClientes">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Género</th>
+            <th>Menú</th>
+            <th>Sesiones</th>
+            <th>Costo/S</th>
+            <th>Total</th>
+            <th>Fecha</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Filas dinámicas -->
+        </tbody>
+      </table>
+      <div style="text-align: center; margin-top: 10px;">
+        <button class="btn-clear" onclick="limpiarTabla()">Limpiar Registro de Clientes Registrados</button>
+      </div>
+    </fieldset>
+  </div>
+
+  <!-- Modal de Reporte -->
+  <div id="reporteModal" class="modal">
+    <div class="modal-content">
+      <h2>REPORTE DE REGISTRO Y LIQUIDACIÓN</h2>
+      <fieldset>
+        <legend> Resumen del Cliente </legend>
+        <table id="tablaReporte">
+          <!-- Detalle dinámico del reporte -->
+        </table>
+      </fieldset>
+      <button class="btn-submit" onclick="cerrarReporte()">Cerrar y Limpiar Formulario</button>
+    </div>
+  </div>
+
+  <script>
+    const PRECIOS_MENU = {
+      "Ejecutivo": 35000,
+      "Vegetariano": 28000,
+      "Degustación": 75000,
+      "Infantil": 20000,
+      "Gourmet": 95000
+    };
+
+    function validarLogin() {
+      const pass = document.getElementById("loginPass").value;
+      if (pass === "1793") {
+        alert("Bienvenida/o al Sistema de Gestión de Clientes.");
+        document.getElementById("loginModal").style.display = "none";
+        document.getElementById("mainApp").style.display = "block";
+        actualizarCosto();
+      } else {
+        alert("Contraseña incorrecta. Intente nuevamente.");
+        document.getElementById("loginPass").value = "";
+      }
+    }
+
+    function actualizarCosto() {
+      const menu = document.getElementById("menu").value;
+      const costo = PRECIOS_MENU[menu];
+      document.getElementById("costo").value = `$${costo.toLocaleString()}`;
+    }
+
+    function validarDatos() {
+      const id = document.getElementById("identificacion").value.trim();
+      const nombre = document.getElementById("nombre").value.trim();
+      const sesiones = document.getElementById("sesiones").value.trim();
+
+      if (!/^\d+$/.test(id)) {
+        alert("Error en Identificación: Debe contener únicamente dígitos numéricos.");
+        return false;
+      }
+
+      if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(nombre)) {
+        alert("Error en Nombre: Debe contener únicamente letras y espacios.");
+        return false;
+      }
+
+      const numSesiones = parseInt(sesiones, 10);
+      if (isNaN(numSesiones) || numSesiones <= 0) {
+        alert("Error en Sesiones: Debe ser un entero mayor que cero.");
+        return false;
+      }
+
+      return true;
+    }
+
+    function procesarRegistro() {
+      if (!validarDatos()) return;
+
+      const id = document.getElementById("identificacion").value.trim();
+      const nombre = document.getElementById("nombre").value.trim();
+      const genero = document.getElementById("genero").value;
+      const menu = document.getElementById("menu").value;
+      const sesiones = parseInt(document.getElementById("sesiones").value.trim(), 10);
+      const costoSesion = PRECIOS_MENU[menu];
+      const costoTotal = sesiones * costoSesion;
+      
+      const ahora = new Date();
+      const fecha = ahora.toISOString().slice(0, 10) + " " + ahora.toTimeString().slice(0, 5);
+
+      // Insertar fila en la tabla de clientes
+      const tbody = document.querySelector("#tablaClientes tbody");
+      const fila = document.createElement("tr");
+      fila.innerHTML = `
+        <td>${id}</td>
+        <td>${nombre}</td>
+        <td>${genero}</td>
+        <td>${menu}</td>
+        <td>${sesiones}</td>
+        <td>$${costoSesion.toLocaleString()}</td>
+        <td>$${costoTotal.toLocaleString()}</td>
+        <td>${fecha}</td>
+      `;
+      tbody.appendChild(fila);
+
+      // Desplegar reporte modal
+      const tablaReporte = document.getElementById("tablaReporte");
+      tablaReporte.innerHTML = `
+        <tr><td><strong>Identificación:</strong></td><td>${id}</td></tr>
+        <tr><td><strong>Nombre Completo:</strong></td><td>${nombre}</td></tr>
+        <tr><td><strong>Género:</strong></td><td>${genero}</td></tr>
+        <tr><td><strong>Tipo de Menú:</strong></td><td>${menu}</td></tr>
+        <tr><td><strong>Costo por Sesión:</strong></td><td>$${costoSesion.toLocaleString()}</td></tr>
+        <tr><td><strong>Número de Sesiones:</strong></td><td>${sesiones}</td></tr>
+        <tr><td><strong>Fecha de Registro:</strong></td><td>${fecha}</td></tr>
+        <tr style="color: var(--primary-color); font-weight: bold;">
+          <td>COSTO TOTAL A PAGAR:</td><td>$${costoTotal.toLocaleString()}</td>
+        </tr>
+      `;
+
+      document.getElementById("reporteModal").style.display = "flex";
+    }
+
+    function cerrarReporte() {
+      document.getElementById("reporteModal").style.display = "none";
+      limpiarFormulario();
+    }
+
+    function limpiarFormulario() {
+      document.getElementById("identificacion").value = "";
+      document.getElementById("nombre").value = "";
+      document.getElementById("sesiones").value = "";
+      document.getElementById("genero").selectedIndex = 0;
+      document.getElementById("menu").selectedIndex = 0;
+      actualizarCosto();
+    }
+
+    function limpiarTabla() {
+      const tbody = document.querySelector("#tablaClientes tbody");
+      if (tbody.children.length > 0 && confirm("¿Desea eliminar todos los clientes de la lista visual?")) {
+        tbody.innerHTML = "";
+      }
+    }
+
+    function confirmarSalida() {
+      if (confirm("¿Está seguro que desea salir de la aplicación?")) {
+        location.reload();
+      }
+    }
+  </script>
+</body>
+</html>
